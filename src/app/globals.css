@@ -1,0 +1,408 @@
+@import "tailwindcss";
+
+/* ------------------------------------------------------------------
+   Design tokens
+   A restrained institutional palette: paper, ink and forest, with
+   solar gold reserved for state (current step, progress, seals).
+------------------------------------------------------------------- */
+@theme {
+  --color-paper: #f5f4ef;
+  --color-paper-2: #ecebe4;
+  --color-surface: #fbfbf8;
+  --color-ink: #1b201e;
+  --color-muted: #5c6460;
+  --color-line: #dad9d1;
+  --color-forest: #1e3b30;
+  --color-forest-deep: #132620;
+  --color-forest-raised: #1a3229;
+  --color-leaf: #3e6b57;
+  --color-sun: #d6a02f;
+  --color-sun-soft: #f2e4c2;
+  /* Darker gold for focus rings on light surfaces (4.6:1 on paper) */
+  --color-sun-strong: #946510;
+  /* Form controls: 3:1 boundary contrast on paper and surface */
+  --color-field: #868c87;
+  --color-error: #a3392b;
+  --color-error-soft: #f7e8e3;
+
+  /* Data visualisation. Categorical slots are assigned in this fixed order
+     and validated together on the card surface (#fbfbf8): lightness band,
+     chroma floor, CVD separation (worst adjacent ΔE 8.9) and 3:1 contrast. */
+  --color-series-1: #1f8256;
+  --color-series-2: #b8841a;
+  --color-series-3: #4a74b0;
+  --color-series-4: #b85c3c;
+  /* De-emphasis: "Other", "Not reached" and context series */
+  --color-series-muted: #b5b4ab;
+  /* Ordinal ramp for ordered stages (validated as an ordinal ramp, light to dark) */
+  --color-stage-1: #80b99b;
+  --color-stage-2: #55a07d;
+  --color-stage-3: #2f8662;
+  --color-stage-4: #1f6d50;
+  --color-stage-5: #1a5640;
+  --color-stage-6: #143f2e;
+  /* Status (reserved meaning, always shown with a label): competent / met */
+  --color-status-good: #2f7a45;
+  /* Chart furniture: recessive hairlines one step off the surface */
+  --color-grid: #e8e7e0;
+  --color-axis: #c9c8bf;
+
+  --font-sans: var(--font-instrument), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", sans-serif;
+
+  /* Type scale (17px base; ratios drawn from the classical scale) */
+  --text-hero: clamp(2.75rem, 1.35rem + 4.1vw, 4.75rem);
+  --text-hero--line-height: 0.98;
+  --text-hero--letter-spacing: -0.032em;
+
+  --text-display: clamp(2.5rem, 1.45rem + 3.1vw, 4rem);
+  --text-display--line-height: 1.03;
+  --text-display--letter-spacing: -0.028em;
+
+  --text-title: clamp(2.05rem, 1.55rem + 1.7vw, 3rem);
+  --text-title--line-height: 1.07;
+  --text-title--letter-spacing: -0.024em;
+
+  --text-lead: clamp(1.1875rem, 1.07rem + 0.4vw, 1.375rem);
+  --text-lead--line-height: 1.45;
+  --text-lead--letter-spacing: -0.008em;
+
+  --text-body: 1.0625rem;
+  --text-body--line-height: 1.65;
+
+  --text-small: 0.9375rem;
+  --text-small--line-height: 1.55;
+
+  --text-label: 0.8125rem;
+  --text-label--line-height: 1.35;
+
+  --ease-out-soft: cubic-bezier(0.22, 1, 0.36, 1);
+
+  --shadow-float: 0 1px 1px rgb(19 38 32 / 0.04),
+    0 22px 48px -22px rgb(19 38 32 / 0.38);
+  --shadow-device: 0 2px 2px rgb(19 38 32 / 0.05),
+    0 40px 80px -36px rgb(19 38 32 / 0.45);
+  --shadow-paper: 0 1px 2px rgb(19 38 32 / 0.06),
+    0 30px 60px -34px rgb(19 38 32 / 0.4);
+
+  --animate-rise: rise 1s var(--ease-out-soft) both;
+  --animate-settle: settle 1.8s var(--ease-out-soft) both;
+  --animate-line-in: line-in 1.1s var(--ease-out-soft) both;
+  --animate-pop: pop 0.6s var(--ease-out-soft) both;
+  --animate-ping-once: ping-once 1.8s var(--ease-out-soft) both;
+  --animate-grow-x: grow-x 0.7s var(--ease-out-soft) both;
+  --animate-fade: fade 1.4s ease both;
+  --animate-arc: arc 2.8s var(--ease-out-soft) both;
+  --animate-auth-enter: auth-enter 220ms ease-out both;
+  /* Platform views reuse the same quiet entrance */
+  --animate-view-enter: auth-enter 240ms ease-out both;
+  --animate-shimmer: shimmer 1.6s ease-in-out infinite;
+
+  @keyframes shimmer {
+    0%,
+    100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.55;
+    }
+  }
+
+  /* Route transition for the authentication pages */
+  @keyframes auth-enter {
+    from {
+      opacity: 0;
+      transform: translateY(8px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes line-in {
+    from {
+      transform: translateY(108%);
+    }
+    to {
+      transform: none;
+    }
+  }
+
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: scale(0);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes ping-once {
+    0% {
+      opacity: 0;
+      transform: scale(1);
+    }
+    1% {
+      opacity: 0.6;
+      transform: scale(1);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(2.8);
+    }
+  }
+
+  @keyframes grow-x {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  @keyframes fade {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @keyframes arc {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(12px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  @keyframes settle {
+    from {
+      opacity: 0;
+      transform: scale(1.045);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+}
+
+/* ------------------------------------------------------------------
+   Base
+------------------------------------------------------------------- */
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    background-color: var(--color-paper);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+    font-size: var(--text-body);
+    line-height: var(--text-body--line-height);
+    font-feature-settings: "kern", "liga", "calt";
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  ::selection {
+    background-color: var(--color-sun-soft);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-forest);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
+  .on-dark :focus-visible {
+    outline-color: var(--color-paper);
+  }
+
+  /* Authentication pages: gold focus ring, contrast-safe on each surface */
+  .auth-scope :focus-visible {
+    outline: 2px solid var(--color-sun-strong);
+    outline-offset: 2px;
+  }
+
+  .auth-scope .on-dark :focus-visible {
+    outline-color: var(--color-sun);
+  }
+
+  /* Platform: the same gold ring as the authentication pages */
+  .platform-scope :focus-visible {
+    outline: 2px solid var(--color-sun-strong);
+    outline-offset: 2px;
+  }
+
+  .platform-scope .on-dark :focus-visible {
+    outline-color: var(--color-sun);
+  }
+}
+
+/* ------------------------------------------------------------------
+   Native modal dialogs (command menu, mobile navigation)
+------------------------------------------------------------------- */
+dialog.platform-dialog {
+  max-width: none;
+  max-height: none;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+dialog.platform-dialog::backdrop {
+  background: rgb(19 38 32 / 0.42);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  dialog.platform-dialog[open] > * {
+    animation: auth-enter 200ms ease-out both;
+  }
+
+  dialog.platform-drawer[open] > * {
+    animation: drawer-in 260ms var(--ease-out-soft) both;
+  }
+}
+
+@keyframes drawer-in {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: none;
+  }
+}
+
+/* Charts: honour forced-colors mode so marks never disappear */
+@media (forced-colors: active) {
+  .chart-mark {
+    forced-color-adjust: none;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Scroll reveal: understated and once. Content is visible by default;
+   Reveal.tsx marks below-the-fold elements as hidden after hydration
+   and shows them as they enter the viewport.
+------------------------------------------------------------------- */
+.draw-x {
+  transform-origin: left center;
+}
+
+.draw-arc {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .reveal {
+    transition:
+      opacity 0.9s var(--ease-out-soft),
+      transform 0.9s var(--ease-out-soft);
+    transition-delay: var(--reveal-delay, 0ms);
+  }
+
+  .reveal[data-reveal="hidden"] {
+    opacity: 0;
+    transform: translateY(14px);
+    transition: none;
+  }
+
+  /* A thin rule that draws itself as its section is revealed */
+  .draw-x {
+    transition: transform 1.6s var(--ease-out-soft) 0.25s;
+  }
+
+  [data-reveal="hidden"] .draw-x {
+    transform: scaleX(0);
+    transition: none;
+  }
+
+  .draw-arc {
+    transition: stroke-dashoffset 2.2s var(--ease-out-soft) 0.3s;
+  }
+
+  [data-reveal="hidden"] .draw-arc {
+    stroke-dashoffset: 1;
+    transition: none;
+  }
+}
+
+/* ------------------------------------------------------------------
+   Hero photograph
+   .cover-frame reproduces object-fit: cover for a box of the photo's
+   exact proportions, so annotations pinned in it stay on their subject
+   at every viewport size. Its parent must be a size container.
+------------------------------------------------------------------- */
+.cover-frame {
+  position: absolute;
+  left: 50%;
+  top: 55%;
+  width: max(100cqw, calc(100cqh * var(--ratio)));
+  height: max(100cqh, calc(100cqw / var(--ratio)));
+  translate: -50% -55%;
+}
+
+.hero-photo-mask {
+  mask-image: linear-gradient(to bottom, transparent 0, #000 20%);
+}
+
+@media (min-width: 1024px) {
+  .hero-photo-mask {
+    mask-image: linear-gradient(to right, transparent 0, #000 28%);
+  }
+
+  /* Copy column ends where the photograph begins (52% of the viewport) */
+  .hero-copy {
+    max-width: calc(48vw - max(40px, (100vw - 1160px) / 2) - 40px);
+  }
+}
+
+/* Hide scrollbars on horizontally scrolling step lists (mobile) */
+.scrollbar-none {
+  scrollbar-width: none;
+}
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+}
